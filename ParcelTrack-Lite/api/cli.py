@@ -5,9 +5,26 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from fastapi import HTTPException
 from dateutil.relativedelta import relativedelta
 from api.core import (PH, ROOT, audit, db_connection, initialize, load_environment,
                       text_value, utc_now, valid_email, valid_password)
+
+
+def prompt_admin_password() -> str:
+    """Reprompt instead of exposing an exception traceback for bad input."""
+    while True:
+        candidate = getpass.getpass('Admin password (12+ characters): ')
+        try:
+            valid_password(candidate)
+        except HTTPException as exc:
+            print(f'Password rejected: {exc.detail}')
+            continue
+        confirmation = getpass.getpass('Confirm admin password: ')
+        if candidate != confirmation:
+            print('Passwords do not match. Please try again.')
+            continue
+        return candidate
 
 
 def main():
@@ -25,7 +42,7 @@ def main():
         if args.command == 'create-admin':
             name = text_value(input('Admin name: '),'Admin name',2,100)
             email = valid_email(input('Admin email: '))
-            password = valid_password(getpass.getpass('Admin password (min 10): '))
+            password = prompt_admin_password()
             with conn:
                 cur = conn.execute('INSERT INTO users(name,email,password_hash,role,created_at) VALUES(?,?,?,?,?)',
                                    (name,email,PH.hash(password),'admin',utc_now()))
