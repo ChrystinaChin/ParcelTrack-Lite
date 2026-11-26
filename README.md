@@ -1,4 +1,4 @@
-# ParcelTrack-Lite
+# ParcelTrack Lite
 
 ParcelTrack-Lite is a web-based parcel tracking and management system developed as a university group project. It allows users to manage parcels and track delivery status through a simple and secure platform.
 
