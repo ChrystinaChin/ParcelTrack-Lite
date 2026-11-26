@@ -79,49 +79,6 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 5000
 php -d upload_max_filesize=4M -d post_max_size=4M -S 127.0.0.1:8080 -t php/public php/public/router.php
 ```
 
-## Walkthrough (suggested demo)
-
-1. **Member 1:** Seller registers with password >=10 characters. Show login, logout, Admin creates Rider, weak-password rejection, failed-login lockout and Seller receiving HTTP 403 from an Admin-only endpoint.
-2. **Member 2:** Seller registers a parcel, searches own tracking number, sees an unguessable `PT-` tracking number, fails to access another Seller's parcel, and demonstrates public tracking (history contains **only status/timestamp**).
-3. **Member 3:** Admin assigns parcel, Rider sees only assigned parcels, changes Assigned → Out for Delivery → Delivered/Failed with verified JPG/PNG image, and Admin dashboard counts update. Show a rejected `.php`-extension upload and invalid status change.
-
-The case study's final delivery status requires a single proof photo. This implementation also requires a photo for **Failed** outcomes (a conservative interpretation). JPG/PNG images are decoded and re-encoded; original filenames and image metadata are not retained.
-
-## Running tests
-
-```bash
-python -m pip install pytest httpx
-python -m pytest -q
-```
-
-PHP validation:
-
-```bash
-find php -name '*.php' -print0 | xargs -0 -n1 php -l  # Linux/macOS
-```
-
-For Windows, run `php -l php/public/index.php` and repeat for each file in `php/src/`. GitHub Actions automatically runs the Python tests and PHP lint on pull requests.
-
-See [`SECURITY.md`](SECURITY.md) and [`TEST_CASES.md`](TEST_CASES.md) for security explanations and assessment evidence.
-
-## GitHub collaboration
-
-1. Create an **empty private GitHub repository** for the group; avoid uploading actual recipient information.
-2. From this project root, run:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "chore: scaffold secure ParcelTrack Lite app"
-   git branch -M main
-   git remote add origin https://github.com/YOUR-TEAM/parceltrack-lite.git
-   git push -u origin main
-   ```
-
-3. Invite your two team members via GitHub **Settings → Collaborators**. Have each person use their own GitHub account and feature branch: `feature/m1-auth`, `feature/m2-parcels`, `feature/m3-delivery`.
-4. Each member should **implement, modify, test and commit their assigned module themselves**. Create a Pull Request and request another member's review; merge after CI passes. The provided scaffold is a starting implementation, **not proof of who authored the work**. Your rubric uses actual commit history for individual ownership.
-5. Do not commit `.env`, SQLite files, real recipient data, or uploaded images. Configure GitHub branch protection for `main`, require reviews and passing CI.
-
 ## Security and privacy notes
 
 - Inbound requests to the API require the shared secret and loopback access. Backend role checks are authoritative; PHP navigation checks are just convenience.
