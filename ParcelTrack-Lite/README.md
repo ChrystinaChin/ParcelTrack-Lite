@@ -52,6 +52,8 @@ python -m api.cli init-db
 python -m api.cli create-admin
 ```
 
+New passwords must be 12-128 characters, avoid common/predictable patterns, and use either at least 3 character types or a long 4+ word passphrase. The Admin CLI reprompts for weak passwords and asks for confirmation. Existing accounts made before this rule are not automatically changed: sign in and use **Change password** to replace an old weak password.
+
 Open **two terminals** in the repository root, with the Python virtual environment active in the first:
 
 **Terminal 1 — Python API**
@@ -90,7 +92,7 @@ php -d upload_max_filesize=4M -d post_max_size=4M -S 127.0.0.1:8080 -t php/publi
 
 ## Walkthrough (suggested demo)
 
-1. **Member 1:** Seller registers with password >=10 characters. Show login, logout, Admin creates Rider, weak-password rejection, failed-login lockout and Seller receiving HTTP 403 from an Admin-only endpoint.
+1. **Member 1:** Seller registers with a strong password (12+ characters; password policy applies to all roles). Show login, logout, Admin creates Rider, weak-password rejection, failed-login lockout and Seller receiving HTTP 403 from an Admin-only endpoint.
 2. **Member 2:** Seller registers a parcel, searches own tracking number, sees an unguessable `PT-` tracking number, fails to access another Seller's parcel, and demonstrates public tracking (history contains **only status/timestamp**).
 3. **Member 3:** Admin assigns parcel, Rider sees only assigned parcels, changes Assigned → Out for Delivery → Delivered/Failed with verified JPG/PNG image, and Admin dashboard counts update. Show a rejected `.php`-extension upload and invalid status change.
 
