@@ -19,11 +19,11 @@ def setup(tmp_path):
         yield client, str(tmp_path/'data.sqlite3'),tmp_path
 
 
-def signup(client, email, name='Demo Seller',password='secure-testing-password'):
+def signup(client, email, name='Demo Seller',password='Testing!Secure2026'):
     return client.post('/auth/register',json={'name':name,'email':email,'password':password})
 
 
-def login(client,email,password='secure-testing-password'):
+def login(client,email,password='Testing!Secure2026'):
     res=client.post('/auth/login',json={'email':email,'password':password})
     assert res.status_code==200, res.text
     return res.json()['token']
@@ -36,7 +36,7 @@ def admin(dbpath,email='admin@example.test'):
     conn=db_connection(dbpath)
     with conn:
         cur=conn.execute('INSERT INTO users(name,email,password_hash,role,created_at) VALUES(?,?,?,?,?)',
-                         ('Demo Admin', email,PH.hash('secure-testing-password'),'admin',utc_now()))
+                         ('Demo Admin', email,PH.hash('Testing!Secure2026'),'admin',utc_now()))
         uid=cur.lastrowid
     conn.close()
     return uid
@@ -44,7 +44,7 @@ def admin(dbpath,email='admin@example.test'):
 
 def make_rider(client,admin_token,email='rider@example.test'):
     res=client.post('/auth/riders',headers=auth(admin_token),json={
-        'name':'Demo Rider','email':email,'password':'secure-testing-password'})
+        'name':'Demo Rider','email':email,'password':'Testing!Secure2026'})
     assert res.status_code==201,res.text
     return res.json()['user_id']
 
@@ -88,7 +88,7 @@ def test_password_policy_hash_and_sql_injection_login(setup):
     conn=db_connection(dbpath)
     data=conn.execute('SELECT password_hash FROM users WHERE email=?',('good@example.test',)).fetchone()
     assert data['password_hash'].startswith('$argon2')
-    assert 'secure-testing-password' not in data['password_hash']
+    assert 'Testing!Secure2026' not in data['password_hash']
     conn.close()
     attack=client.post('/auth/login',json={'email':"' OR 1=1 --@example.test",'password':'x'})
     assert attack.status_code in (400,401)
@@ -100,7 +100,7 @@ def test_account_lockout_and_admin_role_check(setup):
     for i in range(5):
         assert client.post('/auth/login',json={'email':'good@example.test','password':'wrong'}).status_code==401
     assert client.post('/auth/login',json={'email':'good@example.test',
-        'password':'secure-testing-password'}).status_code==401
+        'password':'Testing!Secure2026'}).status_code==401
     seller=signup(client,'other@example.test'); assert seller.status_code==201
     tok=login(client,'other@example.test')
     assert client.get('/admin/dashboard',headers=auth(tok)).status_code==403
@@ -202,7 +202,7 @@ def test_change_password_revokes_previous_tokens(setup):
     signup(client,'test@example.test')
     t=login(client,'test@example.test')
     assert client.post('/auth/change-password',headers=auth(t),json={
-        'current_password':'secure-testing-password','new_password':'different-secure-password'}).status_code==200
+        'current_password':'Testing!Secure2026','new_password':'Another!Secure2026'}).status_code==200
     assert client.get('/auth/me',headers=auth(t)).status_code==401
     assert login(client,'test@example.test','different-secure-password')
 
@@ -243,3 +243,59 @@ def test_retention_anonymizes_closed_parcels(setup):
     assert row['recipient_name']==row['recipient_address']=='[anonymized]'
     assert row['proof_path'] is None and not proof_path.exists()
     conn.close()
+
+
+@pytest.mark.parametrize('weak_password', [
+    '123456789012', 'password1234!', 'aaaaaaaaaaaa',
+    'alllowercaseonly', 'Admin@123456', 'qwertyuiop123!'
+])
+def test_rejects_weak_password_during_seller_registration(setup, weak_password):
+    client, _, _ = setup
+    res = signup(client, 'weak@example.test', password=weak_password)
+    assert res.status_code == 400
+
+
+def test_accepts_strong_password_and_passphrase(setup):
+    client, _, _ = setup
+    assert signup(client, 'strong@example.test', password='Lowercase!123').status_code == 201
+    assert signup(client, 'passphrase@example.test', password='Purple railway lantern ocean drift').status_code == 201
+
+
+def test_admin_cli_reprompts_for_weak_password_and_mismatch(tmp_path, monkeypatch, capsys):
+    from api.cli import main
+    import api.cli as cli
+    import builtins
+    import sys
+    dbpath = tmp_path / 'admin-cli.sqlite3'
+    monkeypatch.setenv('PARCELTRACK_DB_PATH', str(dbpath))
+    monkeypatch.setattr(sys, 'argv', ['api.cli', 'create-admin'])
+    entered = iter(['Demo Admin', 'admin-cli@example.test'])
+    monkeypatch.setattr(builtins, 'input', lambda prompt='': next(entered))
+    entered_passwords = iter(['password1234!', 'Testing!Secure2026', 'different',
+                              'Testing!Secure2026', 'Testing!Secure2026'])
+    monkeypatch.setattr(cli.getpass, 'getpass', lambda prompt='': next(entered_passwords))
+    main()
+    out = capsys.readouterr().out
+    assert 'Password rejected:' in out and 'Passwords do not match.' in out
+    assert 'Admin created.' in out
+    conn = db_connection(str(dbpath))
+    record = conn.execute('SELECT role,password_hash FROM users WHERE email=?',
+                          ('admin-cli@example.test',)).fetchone()
+    assert record['role'] == 'admin'
+    assert PH.verify(record['password_hash'], 'Testing!Secure2026')
+    conn.close()
+
+
+def test_shared_password_policy_for_riders_and_changes(setup):
+    client, dbpath, _ = setup
+    admin(dbpath)
+    atoken = login(client, 'admin@example.test')
+    rejected = client.post('/auth/riders', headers=auth(atoken), json={
+        'name':'Demo Rider','email':'weak-rider@example.test','password':'Password1234!'})
+    assert rejected.status_code == 400
+    seller = signup(client, 'seller-change@example.test')
+    assert seller.status_code == 201
+    stoken = login(client, 'seller-change@example.test')
+    rejected = client.post('/auth/change-password',headers=auth(stoken),json={
+        'current_password':'Testing!Secure2026','new_password':'123456789012'})
+    assert rejected.status_code == 400
