@@ -130,8 +130,31 @@ def valid_email(value: Any) -> str:
 
 
 def valid_password(value: Any) -> str:
-    if not isinstance(value, str) or not (10 <= len(value) <= 128):
-        bad('Password must be 10-128 characters.')
+    """Validate new passwords across CLI Admin, Seller, Rider, and password changes.
+
+    Longer multiword passphrases are supported as an alternative to mixed
+    character types. Login itself does not enforce this creation-time rule,
+    so existing accounts can sign in and replace an older weak password.
+    """
+    if not isinstance(value, str) or not (12 <= len(value) <= 128):
+        bad('Password must contain 12-128 characters.')
+    if value != value.strip() or any(ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        bad('Password cannot start/end with spaces or contain control characters.')
+    lowered = value.casefold()
+    # High-frequency predictable terms are rejected even with suffixes/symbols.
+    predictable = ('password', 'passw0rd', '123456', 'qwerty', 'letmein',
+                   'welcome', 'iloveyou', 'abc123', 'admin123', 'parceltrack')
+    if any(term in lowered for term in predictable) or re.search(r'(.)\1{3,}', value) or len(set(value)) < 6:
+        bad('Password is too predictable. Choose a more unique password.')
+    categories = sum((any(ch.islower() for ch in value),
+                      any(ch.isupper() for ch in value),
+                      any(ch.isdigit() for ch in value),
+                      any(not ch.isalnum() and not ch.isspace() for ch in value)))
+    words = value.split()
+    passphrase = len(value) >= 20 and len(words) >= 4 and all(len(word) >= 3 for word in words)
+    if categories < 3 and not passphrase:
+        bad('Use uppercase, lowercase, number and symbol (at least 3 types), '
+            'or a passphrase of 4+ words (20+ characters).')
     return value
 
 
