@@ -1,17 +1,8 @@
 # ParcelTrack Lite — Secure Parcel Tracking System
 
-A working **three-member** course project for KirimCepat Sdn. Bhd., based on `ParcelTrack_case_study_3Members.docx`. The separately supplied *four-member* rubric is not the module allocation for this build.
+A working course project for KirimCepat Sdn. Bhd., based on `ParcelTrack_case_study_3Members.docx`.
 
 **Stack:** Python 3.11+ / FastAPI API · SQLite database · PHP 8.2+ frontend · CSS · Git/GitHub.
-
-## Features by member
-
-| Member | Module files owned | Features |
-|---|---|---|
-| Member 1 | `api/modules/m1_auth.py`, `php/src/m1_pages.php` | Seller self-registration, login/logout, Argon2 passwords, password changes, admin creates/disables riders, server-side role authorization, lockout. |
-| Member 2 | `api/modules/m2_parcels.py`, `php/src/m2_pages.php` | Seller parcel registration, unique cryptographic tracking numbers, own-only parcel details and search, privacy-preserving public tracking. |
-| Member 3 | `api/modules/m3_delivery.py`, `php/src/m3_pages.php` | Admin assignment and dashboard, assigned-only rider deliveries, status history, JPG/PNG proof photos. |
-| Shared | `api/core.py`, `api/factory.py`, `api/cli.py`, `php/src/bootstrap.php`, `php/public/index.php`, tests, docs | Shared SQLite, authentication bridge, PHP sessions, CSRF, tests, integration and deployments. |
 
 ## Architecture
 
