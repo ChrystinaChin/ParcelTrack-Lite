@@ -1,4 +1,4 @@
-# ParcelTrack Lite — Secure Parcel Tracking System
+# ParcelTrack Lite: Secure Parcel Tracking System
 
 A working course project for KirimCepat Sdn. Bhd., based on `ParcelTrack_case_study_3Members.docx`.
 
