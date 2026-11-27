@@ -21,7 +21,7 @@ function page_track(): void {
 }
 function page_new_parcel(): void {
     login_required(['seller']); render_header('Register parcel');
-    echo '<div class="pagehead"><div><p class="eyebrow">SELLER · MEMBER 2</p><h1>Register a parcel</h1></div></div>';
+    echo '<div class="pagehead"><div><p class="eyebrow">SELLER</p><h1>Register a parcel</h1></div></div>';
     echo '<section class="panel"><p class="muted">Only you and authorized delivery staff can view personal recipient details.</p>';
     post_form_start('parcel-create','stack');
     field('Recipient full name','recipient_name','text','',true,'maxlength="100"');
@@ -44,7 +44,7 @@ function page_seller(): void {
     login_required(['seller']); $search=trim((string)($_GET['search']??''));
     $res=api_request('GET','/parcels?search='.rawurlencode($search));
     render_header('My parcels');
-    echo '<div class="pagehead"><div><p class="eyebrow">SELLER · MEMBER 2</p><h1>My parcels</h1></div><a class="btn" href="'.h(url_for('new-parcel')).'">+ New parcel</a></div>';
+    echo '<div class="pagehead"><div><p class="eyebrow">SELLER</p><h1>My parcels</h1></div><a class="btn" href="'.h(url_for('new-parcel')).'">+ New parcel</a></div>';
     echo '<section class="panel"><form method="get" class="search"><input type="hidden" name="page" value="seller"><input name="search" maxlength="100" placeholder="Search tracking number" value="'.h($search).'"><button class="btn" type="submit">Search</button></form>';
     if ($res['status']===200) parcel_table($res['data']['parcels']??[]); else echo '<p>'.h(problem($res)).'</p>';
     echo '</section>'; render_footer();
