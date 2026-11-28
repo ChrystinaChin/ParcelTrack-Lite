@@ -12,8 +12,8 @@ Owner M3: __________________ · Matric #: ________________
 
 | ID | Input / test case | Expected result | Automated actual result |
 |---|---|---|---|
-| M1-01 | New seller / valid details and 10+ character password | Account created, role seller | PASS — seller registration |
-| M1-02 | `short` as registration password | HTTP 400; no new account | PASS |
+| M1-01 | New seller / valid details and strong 12+ character password | Account created, role seller | PASS — seller registration |
+| M1-02 | `short`, `123456789012`, `password1234!` as registration passwords | HTTP 400; no new account | PASS |
 | M1-03 | SQL payload `' OR 1=1 --` in login email | Login denied; no SQL execution | PASS |
 | M1-04 | Repeated wrong password 5 times then correct password | Account remains locked, HTTP 401 | PASS |
 | M1-05 | Seller requests `/admin/dashboard` | HTTP 403 | PASS |
@@ -77,3 +77,5 @@ Owner M3: __________________ · Matric #: ________________
 - Admin creates Rider, assigns parcel, Rider updates to Out for Delivery and then Delivered with PNG proof, Admin dashboard updates, Seller downloads authorized proof — PASS.
 
 **Important:** Automated PASS means the corresponding FastAPI security test passed locally; it does not assert that every browser or server deployment scenario was tested. Fill manual actual results and member names before submission.
+
+**Password policy regression tests:** CLI Admin creation rejects weak passwords and mismatch, then accepts a strong confirmed password. API Rider creation and password changes reject weak choices. Run these tests after changes.

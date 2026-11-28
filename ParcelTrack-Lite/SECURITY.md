@@ -14,7 +14,7 @@
 | XSS | `h()` calls `htmlspecialchars(... ENT_QUOTES ...)` for display values; CSP `script-src` falls back to `default-src 'none'`. | Enter `<script>alert(1)</script>` in recipient name; it is displayed as text, not executed. |
 | IDOR / role access | `role_guard()`, `parcel_access()` in Python on every call. | Change Seller/Rider parcel ID; API returns 404. Seller requests dashboard; 403. |
 | Brute force | 5 failed logins lock account 15 min; email and IP request throttles. | Wrong password five times; correct password still rejected until lock expiry. |
-| Password | Argon2id `PasswordHasher`, min 10 characters; no plaintext storage. | Inspect `users.password_hash` and weak password rejection. |
+| Password | Argon2id `PasswordHasher`, min 12 characters, common-pattern rejection, mixed types or long 4-word passphrase; no plaintext storage. | Inspect `users.password_hash` and weak password rejection. |
 | Authentication sessions | Secure PHP session cookie configuration and `session_regenerate_id`; random API bearer token stored only in PHP session and hashed in SQLite. | Logout/change password invalidates bearer token in API. |
 | CSRF | Unpredictable synchronized PHP session CSRF token on every POST. | Remove `csrf` form field; HTTP 403. |
 | Public tracking | Random 96-bit token `PT-` + 24 hex digits, generic 404, 20/min per IP. | Guess tracking ID, script/SQL payload and request flooding. |

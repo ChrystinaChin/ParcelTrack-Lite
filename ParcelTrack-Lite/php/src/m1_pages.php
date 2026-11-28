@@ -15,7 +15,7 @@ function page_register(): void {
     post_form_start('register','stack');
     field('Full name','name','text','',true,'minlength="2" maxlength="100"');
     field('Email','email','email','',true,'maxlength="254"');
-    field('Password (at least 10 characters)','password','password','',true,'minlength="10" maxlength="128" autocomplete="new-password"');
+    field('Password (at least 12 characters)','password','password','',true,'minlength="12" maxlength="128" autocomplete="new-password"');
     echo '<button class="btn" type="submit">Register</button></form></section></div>';
     render_footer();
 }
@@ -24,7 +24,7 @@ function page_password(): void {
     echo '<div class="authwrap"><section class="panel"><h1>Change password</h1>';
     post_form_start('change-password','stack');
     field('Current password','current_password','password','',true,'autocomplete="current-password"');
-    field('New password (at least 10 characters)','new_password','password','',true,'minlength="10" maxlength="128" autocomplete="new-password"');
+    field('New password (at least 12 characters)','new_password','password','',true,'minlength="12" maxlength="128" autocomplete="new-password"');
     echo '<button class="btn" type="submit">Update password</button></form></section></div>';
     render_footer();
 }
@@ -34,7 +34,7 @@ function page_riders(): void {
     echo '<section class="panel"><h2>Create rider</h2>'; post_form_start('rider-create','form-grid');
     field('Full name','name','text','',true,'maxlength="100"');
     field('Email','email','email','',true,'maxlength="254"');
-    field('Temporary password (min. 10 characters)','password','password','',true,'minlength="10" maxlength="128"');
+    field('Temporary password (min. 12 characters)','password','password','',true,'minlength="12" maxlength="128"');
     echo '<button class="btn" type="submit">Create rider</button></form></section>';
     echo '<section class="panel"><h2>Existing riders</h2><div class="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Account</th><th>Action</th></tr></thead><tbody>';
     foreach ($res['data']['riders']??[] as $r) {

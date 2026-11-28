@@ -43,6 +43,8 @@ python -m api.cli init-db
 python -m api.cli create-admin
 ```
 
+New passwords must be 12-128 characters, avoid common/predictable patterns, and use either at least 3 character types or a long 4+ word passphrase. The Admin CLI reprompts for weak passwords and asks for confirmation. Existing accounts made before this rule are not automatically changed: sign in and use **Change password** to replace an old weak password.
+
 Open **two terminals** in the repository root, with the Python virtual environment active in the first:
 
 **Terminal 1 — Python API**
