@@ -32,12 +32,13 @@ Owner M3: __________________ · Matric #: ________________
 | M2-02 | Recipient name `<script>alert(1)</script>` | Stored as data; PHP escapes when displayed | PASS API storage; browser rendering requires manual check |
 | M2-03 | Seller B modifies URL to Seller A parcel ID | HTTP 404, no private data | PASS |
 | M2-04 | Search `' OR 1=1 --` | No unauthorized results | PASS |
-| M2-05 | Malformed phone `abc123` | HTTP 400 | PASS |
+| M2-05 | Malformed phone `abc123`, number with hyphen `012-3456789` or spaces `012 3456789` | HTTP 400, numbers must contain digits only | PASS — API test |
 | M2-06 | Weight `-5` and nonnumeric `1 OR 1=1` | HTTP 400 | PASS |
 | M2-07 | Address longer than 250 characters | HTTP 400 | PASS |
 | M2-08 | Public lookup by correct tracking ID | Status and timestamps only, no PII | PASS |
 | M2-09 | Wrong-format / SQL injection tracking ID | Generic HTTP 404 | PASS |
 | M2-10 | 21 public tracking queries from same IP in 60 sec | HTTP 429 for query #21 | PASS |
+| M2-11 | Register parcel with Address Line 1, optional Address Line 2, Postcode, City, State | PHP validates required fields and five-digit postcode; full address stored safely | Manual browser check required |
 
 ## Member 3 — Delivery Update and Admin Dashboard
 
