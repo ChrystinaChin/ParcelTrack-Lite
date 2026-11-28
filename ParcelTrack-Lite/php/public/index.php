@@ -66,11 +66,30 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             $page='riders';break;
         case 'parcel-create':
             login_required(['seller']);
-            $res=api_request('POST','/parcels',[
-                'recipient_name'=>(string)($_POST['recipient_name']??''),
-                'recipient_phone'=>(string)($_POST['recipient_phone']??''),
-                'recipient_address'=>(string)($_POST['recipient_address']??''),
-                'weight_kg'=>(string)($_POST['weight_kg']??'')]);
+            $phone=(string)($_POST['recipient_phone']??'');
+            $line1=trim((string)($_POST['address_line1']??''));
+            $line2=trim((string)($_POST['address_line2']??''));
+            $postcode=(string)($_POST['postcode']??'');
+            $city=trim((string)($_POST['city']??''));
+            $state=trim((string)($_POST['state']??''));
+            if (!preg_match('/\\A[0-9]{8,15}\\z/', $phone)) {
+                $res=['status'=>400,'data'=>['detail'=>'Phone must contain 8-15 digits, without hyphens or spaces.']];
+            } elseif (!preg_match('/\\A[0-9]{5}\\z/', $postcode)) {
+                $res=['status'=>400,'data'=>['detail'=>'Postcode must contain exactly 5 digits.']];
+            } elseif (strlen($line1)<5 || strlen($line1)>90 || strlen($line2)>60 ||
+                      strlen($city)<2 || strlen($city)>45 || strlen($state)<2 || strlen($state)>35) {
+                $res=['status'=>400,'data'=>['detail'=>'Please enter a valid address, city and state.']];
+            } else {
+                $parts=[$line1];
+                if ($line2!=='') $parts[]=$line2;
+                $parts[]=$postcode.' '.$city;
+                $parts[]=$state;
+                $res=api_request('POST','/parcels',[
+                    'recipient_name'=>(string)($_POST['recipient_name']??''),
+                    'recipient_phone'=>$phone,
+                    'recipient_address'=>implode(', ', $parts),
+                    'weight_kg'=>(string)($_POST['weight_kg']??'')]);
+            }
             $page=$res['status']===201?'seller':'new-parcel';
             if ($res['status']===201) $res['data']['message'] .= ' Tracking: '.$res['data']['tracking_number'];
             break;
