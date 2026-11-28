@@ -61,7 +61,7 @@ function page_parcel(): void {
     if ($res['status']!==200) { http_response_code($res['status']); render_header('Parcel unavailable');echo '<section class="panel"><h1>'.h(problem($res)).'</h1></section>';render_footer();return; }
     $p=$res['data']['parcel'];
     render_header('Parcel details');
-    if (role()==='seller') echo '<p><a class="btn btn-light" href="'.h(url_for('seller')).'">&larr; Back to My parcels</a></p>';
+    if (role()==='seller') echo '<p><a class="btn btn-light" href="'.h(url_for('seller')).'">&larr; Back</a></p>';
     echo '<div class="pagehead"><div><p class="eyebrow">PARCEL DETAILS</p><h1 class="mono">'.h($p['tracking_number']).'</h1></div>'.show_status($p['status']).'</div>';
     echo '<div class="columns"><section class="panel"><h2>Delivery information</h2><dl class="details">';
     foreach (['Recipient'=>$p['recipient_name'],'Phone'=>$p['recipient_phone'],'Address'=>$p['recipient_address'],
