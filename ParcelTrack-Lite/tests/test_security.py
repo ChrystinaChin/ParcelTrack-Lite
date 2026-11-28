@@ -50,7 +50,7 @@ def make_rider(client,admin_token,email='rider@example.test'):
 
 
 def parcel(client,seller_token,**overrides):
-    body={'recipient_name':'Test Recipient','recipient_phone':'+60123456789',
+    body={'recipient_name':'Test Recipient','recipient_phone':'0123456789',
           'recipient_address':'11 Fictional Street, Sample City', 'weight_kg':'1.250'}
     body.update(overrides)
     return client.post('/parcels',headers=auth(seller_token),json=body)
@@ -121,6 +121,9 @@ def test_seller_ownership_and_parameterized_search(setup):
 def test_invalid_phone_weights_address(setup):
     client,_,s1,_,_,_,_=seed(setup)
     assert parcel(client,s1,recipient_phone='abc123').status_code==400
+    for invalid in ('012-3456789', '012 3456789', '+60123456789'):
+        assert parcel(client,s1,recipient_phone=invalid).status_code==400
+    assert parcel(client,s1,recipient_phone='0123456789').status_code==201
     assert parcel(client,s1,weight_kg='-5').status_code==400
     assert parcel(client,s1,weight_kg='1 OR 1=1').status_code==400
     assert parcel(client,s1,recipient_address='a'*251).status_code==400
