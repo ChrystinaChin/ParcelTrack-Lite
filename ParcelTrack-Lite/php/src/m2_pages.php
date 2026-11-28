@@ -25,8 +25,13 @@ function page_new_parcel(): void {
     echo '<section class="panel"><p class="muted">Only you and authorized delivery staff can view personal recipient details.</p>';
     post_form_start('parcel-create','stack');
     field('Recipient full name','recipient_name','text','',true,'maxlength="100"');
-    field('Recipient phone','recipient_phone','tel','',true,'maxlength="20"');
-    echo '<label class="field">Delivery address<textarea name="recipient_address" required minlength="5" maxlength="250" rows="3"></textarea></label>';
+    field('Recipient phone','recipient_phone','tel','',true,'inputmode="numeric" pattern="[0-9]{8,15}" minlength="8" maxlength="15" placeholder="0123456789" title="Enter 8 to 15 digits without hyphens or spaces"');
+    echo '<p class="small muted">Numbers only, without hyphens (-) or spaces. Example: 0123456789.</p>';
+    field('Address Line 1','address_line1','text','',true,'minlength="5" maxlength="90" placeholder="House number and street"');
+    field('Address Line 2 (Optional)','address_line2','text','',false,'maxlength="60" placeholder="Apartment, unit or building (optional)"');
+    field('Postcode','postcode','text','',true,'inputmode="numeric" pattern="[0-9]{5}" minlength="5" maxlength="5" placeholder="14000"');
+    field('City','city','text','',true,'minlength="2" maxlength="45" placeholder="Bukit Mertajam"');
+    field('State','state','text','',true,'minlength="2" maxlength="35" placeholder="Penang"');
     field('Weight (kg)','weight_kg','text','',true,'placeholder="1.250" inputmode="decimal"');
     echo '<button class="btn" type="submit">Register parcel</button></form></section>'; render_footer();
 }
